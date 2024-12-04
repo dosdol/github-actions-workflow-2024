@@ -1,10 +1,10 @@
-name: Intro - Manual Workflow
+name: Intro - Manual Workflow2
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - '.github/workflows/intro-manual-workflow.yml'
+      - '.github/workflows/intro-manual-workflow2.yml'
 
 jobs:
   run:
