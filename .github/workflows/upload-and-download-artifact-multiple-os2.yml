@@ -48,22 +48,23 @@ jobs:
           path: ${{ runner.temp }}/webapp  
 
   download:
-      strategy:
-        matrix:
-          os: [ubuntu-latest, windows-latest, macos-latest]
-      runs-on: ${{ matrix.os }}
-      needs: upload
-      defaults:
-        run:
-          shell: bash
-      steps:
-        - name: Download Artifact
-          uses: actions/download-artifact@v4.1.8
-          with:
-            name: '.net-web-app-${{ runner.os }}'
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    needs: upload
+    defaults:
+      run:
+        shell: bash
     
-        - name: List Downloaded Files
-          run: ls -R ./downloaded-artifacts
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4.1.8
+        with:
+          name: '.net-web-app-${{ runner.os }}'
     
-        - name: Verify Artifact Content
-          run: echo "Downloaded artifact verified successfully."          
+      - name: List Downloaded Files
+        run: ls -R ./downloaded-artifacts
+    
+      - name: Verify Artifact Content
+        run: echo "Downloaded artifact verified successfully."          
