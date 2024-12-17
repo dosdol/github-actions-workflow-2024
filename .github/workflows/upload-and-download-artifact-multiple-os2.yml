@@ -1,0 +1,69 @@
+name: Upload and Download Artifact on Multiple Operating Systems2
+
+on:
+  push:
+    paths:
+      - '.github/workflows/upload-and-download-artifact-multiple-os2.yml'
+      - 'src/dotnet/WebApp/**'
+  workflow_dispatch:
+
+jobs:
+  upload:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: ./src/dotnet/WebApp
+        shell: bash
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4.1.7
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4.0.1
+        with:
+          dotnet-version: '8.x'
+
+      - name: Build Code
+        run: dotnet build --configuration Release
+
+      - name: Publish Code
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            PUBLISH_DIR="${{ runner.temp }}\\webapp"
+          else
+            PUBLISH_DIR="${{ runner.temp }}/webapp"
+          fi
+
+          mkdir -p "$PUBLISH_DIR"
+          dotnet publish -c Release --output "$PUBLISH_DIR"
+          ls "$PUBLISH_DIR"
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4.3.6
+        with:
+          name: '.net-web-app-${{ runner.os }}'
+          path: ${{ runner.temp }}/webapp  
+
+  download:
+      strategy:
+        matrix:
+          os: [ubuntu-latest, windows-latest, macos-latest]
+      runs-on: ${{ matrix.os }}
+      needs: upload
+      defaults:
+        run:
+          shell: bash
+      steps:
+        - name: Download Artifact
+          uses: actions/download-artifact@v4.1.8
+          with:
+            name: '.net-web-app-${{ runner.os }}'
+    
+        - name: List Downloaded Files
+          run: ls -R ./downloaded-artifacts
+    
+        - name: Verify Artifact Content
+          run: echo "Downloaded artifact verified successfully."          
